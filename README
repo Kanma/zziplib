@@ -1,0 +1,34 @@
+This is a custom distribution of zziplib, version 0.13.57, with a CMake-based build
+system.
+
+
+License
+-------
+
+zziplib's license is unchanged: this library is free software; you can redistribute
+it and/or modify it under the terms of either the GNU Lesser General Public License
+version 2 (or later) or the Mozilla Public license.
+
+
+Submodules
+----------
+
+This distribution use zlib as a GIT submodule. To download it, do:
+
+	$ git submodule init
+	$ git submodule update
+
+If your project already contains another zlib instance, you can tell zziplib to use it
+instead. For that, don't download the submodule, and set the CMake variable
+ZZIPLIB_ZLIB_PATH.
+
+
+Compilation
+-----------
+
+It is recommended to compile the library in a separate folder. Here's how I do it:
+
+	$ mkdir build
+	$ cd build
+	$ cmake ..
+	$ make
