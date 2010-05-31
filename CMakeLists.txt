@@ -6,20 +6,26 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
 
-if (NOT ZZIPLIB_ZLIB_PATH)
-    set(ZZIPLIB_ZLIB_PATH "" CACHE STRING "Path to the zlib source files (by default: ${ZZIPLIB_SOURCE_DIR}/zlib)")
-endif()
-
 # Set the output path
 if (NOT ATHENA_BINARY_DIR)
     set(ATHENA_BINARY_DIR "${ZZIPLIB_BINARY_DIR}")
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${ZZIPLIB_BINARY_DIR}/lib")
 endif()
 
-# Subdirectories to process
-if (NOT ZZIPLIB_ZLIB_PATH)
-    add_subdirectory(zlib)
+# Import XMake
+if (EXISTS "${ZZIPLIB_SOURCE_DIR}/dependencies/xmake/XMake.cmake")
+    include("${ZZIPLIB_SOURCE_DIR}/dependencies/xmake/XMake.cmake")
 endif()
+
+# Process the dependencies
+add_subdirectory(dependencies)
+
+# XMake settings
+xmake_init_static(ZZIPLIB)
+xmake_add_include_paths(ZZIPLIB ${ZZIPLIB_SOURCE_DIR}
+                                ${XMAKE_ZLIB_INCLUDE_PATHS})
+xmake_add_link_paths(ZZIPLIB "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
+xmake_add_link_targets(ZZIPLIB zziplib "${XMAKE_ZLIB_LINK_TARGETS}")
 
 # List the source files
 set(SRCS zzip/dir.c
@@ -33,13 +39,7 @@ set(SRCS zzip/dir.c
 )
 
 # List the include paths
-include_directories(.)
-
-if (NOT ZZIPLIB_ZLIB_PATH)
-    include_directories(zlib)
-else()
-    include_directories(${ZZIPLIB_ZLIB_PATH})
-endif()
+xmake_include_directories(ZZIPLIB)
 
 # Declaration of the library
 add_library(zziplib STATIC ${SRCS})
