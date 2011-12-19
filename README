@@ -1,4 +1,4 @@
-This is a custom distribution of zziplib, version 0.13.57, with a CMake-based build
+This is a custom distribution of zziplib, version 0.13.57, with a XMake-based build
 system.
 
 
@@ -13,7 +13,7 @@ version 2 (or later) or the Mozilla Public license.
 Submodules
 ----------
 
-This distribution use zlib as a GIT submodule. To download it, do:
+This distribution use zlib and XMake as GIT submodules. To download them, do:
 
 	$ git submodule init
 	$ git submodule update

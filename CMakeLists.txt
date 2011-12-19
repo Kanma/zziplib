@@ -1,31 +1,50 @@
 cmake_minimum_required(VERSION 2.6)
 project(ZZIPLIB)
 
-# Options
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
+
+##########################################################################################
+# XMake-related settings
+
+# Set the output paths
+if (NOT DEFINED XMAKE_BINARY_DIR)
+    set(XMAKE_BINARY_DIR "${ZZIPLIB_BINARY_DIR}")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${XMAKE_BINARY_DIR}/bin")
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${XMAKE_BINARY_DIR}/lib")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${XMAKE_BINARY_DIR}/bin")
 endif()
 
-# Set the output path
-if (NOT ATHENA_BINARY_DIR)
-    set(ATHENA_BINARY_DIR "${ZZIPLIB_BINARY_DIR}")
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${ZZIPLIB_BINARY_DIR}/lib")
+# Set the dependencies path
+if (NOT DEFINED XMAKE_DEPENDENCIES_DIR)
+    set(XMAKE_DEPENDENCIES_DIR "${ZZIPLIB_SOURCE_DIR}/dependencies")
 endif()
 
-# Import XMake
-if (EXISTS "${ZZIPLIB_SOURCE_DIR}/dependencies/xmake/XMake.cmake")
-    include("${ZZIPLIB_SOURCE_DIR}/dependencies/xmake/XMake.cmake")
+
+##########################################################################################
+# XMake importation
+
+if (NOT EXISTS "${XMAKE_DEPENDENCIES_DIR}/XMake/XMake.cmake")
+    message(FATAL_ERROR
+"Missing dependency: XMake
+This distribution of zziplib requires the following dependencies:
+   - XMake
+   - ZLib
+They are provided as GIT submodules of this repository.
+Did you forgot to execute the following commands?
+   git submodule init
+   git submodule update")
 endif()
 
-# Process the dependencies
+include("${XMAKE_DEPENDENCIES_DIR}/XMake/XMake.cmake")
+
+
+##########################################################################################
+# Process subdirectories
+
 add_subdirectory(dependencies)
 
-# XMake settings
-xmake_init_static(ZZIPLIB)
-xmake_add_include_paths(ZZIPLIB ${ZZIPLIB_SOURCE_DIR}
-                                ${XMAKE_ZLIB_INCLUDE_PATHS})
-xmake_add_link_paths(ZZIPLIB "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
-xmake_add_link_targets(ZZIPLIB zziplib "${XMAKE_ZLIB_LINK_TARGETS}")
+
+##########################################################################################
+# Declaration of the library
 
 # List the source files
 set(SRCS zzip/dir.c
@@ -39,15 +58,23 @@ set(SRCS zzip/dir.c
 )
 
 # List the include paths
-xmake_include_directories(ZZIPLIB)
+set(INCLUDE_PATHS "${ZZIPLIB_SOURCE_DIR}")
+
+include_directories(${INCLUDE_PATHS})
+
+xmake_import_search_paths(ZLIB)
 
 # Declaration of the library
-add_library(zziplib STATIC ${SRCS})
+xmake_create_static_library(ZZIPLIB zziplib ${SRCS})
 
-# Compilation settings
 if (NOT WIN32)
-    set_target_properties(zziplib PROPERTIES COMPILE_FLAGS "-w -fPIC")
+    xmake_add_to_property(ZZIPLIB COMPILE_FLAGS "-w")
 else()
-    set_target_properties(zziplib PROPERTIES COMPILE_FLAGS "/W0")
-    set_target_properties(zziplib PROPERTIES COMPILE_DEFINITIONS "_CRT_SECURE_NO_DEPRECATE")
+    xmake_add_to_property(ZZIPLIB COMPILE_FLAGS "/W0")
+    xmake_add_to_list_property(ZZIPLIB COMPILE_DEFINITIONS "_CRT_SECURE_NO_DEPRECATE")
 endif()
+
+xmake_project_link(ZZIPLIB ZLIB)
+
+# Exportations
+xmake_export_include_paths(ZZIPLIB ${INCLUDE_PATHS})
