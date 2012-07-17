@@ -46,6 +46,31 @@ add_subdirectory(dependencies)
 ##########################################################################################
 # Declaration of the library
 
+# List the header files
+set(HEADERS zzip/__debug.h
+            zzip/__dirent.h
+            zzip/__fnmatch.h
+            zzip/__hints.h
+            zzip/__mmap.h
+            zzip/_config.h
+            zzip/_msvc.h
+            zzip/autoconf.h
+            zzip/conf.h
+            zzip/fetch.h
+            zzip/file.h
+            zzip/format.h
+            zzip/fseeko.h
+            zzip/info.h
+            zzip/lib.h
+            zzip/memdisk.h
+            zzip/mmapped.h
+            zzip/plugin.h
+            zzip/stdint.h
+            zzip/types.h
+            zzip/write.h
+            zzip/zzip.h
+)
+
 # List the source files
 set(SRCS zzip/dir.c
          zzip/err.c
@@ -65,7 +90,7 @@ include_directories(${INCLUDE_PATHS})
 xmake_import_search_paths(ZLIB)
 
 # Declaration of the library
-xmake_create_static_library(ZZIPLIB zziplib ${SRCS})
+xmake_create_static_library(ZZIPLIB zziplib ${HEADERS} ${SRCS})
 
 if (NOT WIN32)
     xmake_add_to_property(ZZIPLIB COMPILE_FLAGS "-w")
