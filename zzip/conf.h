@@ -68,7 +68,11 @@
 #ifdef   ZZIP_inline
 #define _zzip_inline ZZIP_inline
 #else
+#ifdef __clang__
+#define _zzip_inline
+#else
 #define _zzip_inline inline
+#endif
 #endif
 #endif
 #ifndef _zzip_restrict
